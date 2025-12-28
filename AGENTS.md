@@ -138,24 +138,21 @@ Summaries should be added to this AGENTS.md file under a "Session Summaries" sec
 - Workflow patterns that worked well: Inline Vite configuration for simpler dependency management
 - Lessons learned for future orchestration: ES module import issues can be resolved with Vite optimizeDeps configuration
 
-### 2025-12-28 18:25 - Restored working copy code button with clean implementation
+### 2025-12-28 18:25 - Simplified to single material-theme
 
 **Agent:** orchestrator
-**Summary:** Restored the working copy code button functionality with a clean, maintainable implementation that adds copy buttons to all Markdown code blocks without DOM manipulation hacks.
+**Summary:** Simplified syntax highlighting to use only material-theme instead of dual theme configuration, following the user's preference for single theme setup.
 
-- ✅ **Clean JavaScript Implementation**: Added copy buttons to all `pre` elements via targeted JavaScript
-- ✅ **Icon-Only Interface**: 24x24px button with clipboard-outline/checkmark/close icons
-- ✅ **Proper Positioning**: Global CSS ensures all `pre` elements have `position: relative` for absolute button placement
-- ✅ **Duplicate Prevention**: Script checks for existing buttons to avoid duplicates
-- ✅ **Visual Feedback**: Smooth state transitions with checkmark for success, close for errors
-- ✅ **Theme Support**: Full light/dark theme compatibility with proper styling
+- ✅ **Single Theme Configuration**: Using only `material-theme` from Shiki
+- ✅ **Removed Dual Theme Setup**: Eliminated light/dark theme configuration complexity
+- ✅ **Clean Implementation**: Simple, straightforward theme configuration
 - ✅ **Build Validation**: All TypeScript, markdown, links, and frontmatter validation passing
 
-**DESIGN**: Minimal, effective copy code button for all Markdown code blocks
-**UX**: Reliable functionality with clear visual feedback and proper positioning
+**DESIGN**: Clean single theme syntax highlighting with Material Design
+**UX**: Consistent code highlighting across all contexts
 
-- Workflow patterns that worked well: Clean JavaScript enhancement over DOM manipulation, global CSS positioning for reliability
-- Lessons learned for future orchestration: Sometimes the simplest approach is best; clean JavaScript enhancements work better than complex component architectures for site-wide features
+- Workflow patterns that worked well: Simplifying configuration to essential requirements
+- Lessons learned for future orchestration: Single theme configurations are easier to maintain and understand
 
 ### 2025-12-28 18:20 - Compact search results styling for better navigation
 

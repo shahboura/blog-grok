@@ -5,7 +5,7 @@ import FormattedDate from '../components/FormattedDate.astro';
 import { config } from '../config';
 import DifficultyBadge from '../components/DifficultyBadge.astro';
 import CategoryBadge from '../components/CategoryBadge.astro';
-import { clipboardOutline, checkmark, close } from 'ionicons/icons';
+
 import getReadingTime from 'reading-time';
 
 const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, minutesRead: readingTime, body } = Astro.props as any;
@@ -119,48 +119,7 @@ const schemaData = {
 		</div>
 	</article>
 
- 	<script>
- 		document.addEventListener('DOMContentLoaded', () => {
- 			document.querySelectorAll('pre').forEach(pre => {
- 				const button = document.createElement('button');
-   				button.innerHTML = `
-   					<ion-icon name="clipboard-outline"></ion-icon>
-   					<span>Copy</span>
-   				`;
- 				button.className = 'copy-code-btn';
- 				button.setAttribute('aria-label', 'Copy code to clipboard');
- 				button.setAttribute('title', 'Copy code to clipboard');
 
- 				let timeoutId: any;
-
- 				const originalHTML = button.innerHTML;
-
- 				button.addEventListener('click', async () => {
- 					const code = pre.querySelector('code');
- 					if (code && navigator.clipboard) {
- 						try {
- 							await navigator.clipboard.writeText(code.textContent || '');
-   							button.innerHTML = '<ion-icon name="checkmark"></ion-icon><span>Copied!</span>';
- 							button.classList.add('copied');
- 						} catch (err) {
- 							console.error('Copy failed:', err);
-   							button.innerHTML = '<ion-icon name="close"></ion-icon><span>Failed</span>';
- 							button.classList.add('error');
- 						}
-
- 						clearTimeout(timeoutId);
- 						timeoutId = setTimeout(() => {
- 							button.innerHTML = originalHTML;
- 							button.classList.remove('copied', 'error');
- 						}, 2000);
- 					}
- 				});
-
- 				pre.style.position = 'relative';
- 				pre.appendChild(button);
- 			});
- 		});
- 	</script>
 
 	<style>
 		.hero-image {
@@ -173,86 +132,7 @@ const schemaData = {
 			box-shadow: var(--box-shadow);
 		}
 
-		/* Copy code button styling */
-		.copy-code-btn {
-			position: absolute;
-			top: 12px;
-			right: 12px;
-			display: flex;
-			align-items: center;
-			gap: 6px;
-			padding: 6px 10px;
-			font-size: 12px;
-			font-weight: 500;
-			background: rgba(255, 255, 255, 0.9);
-			color: rgb(var(--gray-dark));
-			border: 1px solid rgb(var(--gray));
-			border-radius: 6px;
-			cursor: pointer;
-			transition: all 0.2s ease;
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			z-index: 10;
-		}
 
-		.copy-code-btn:hover {
-			background: rgba(255, 255, 255, 0.95);
-			border-color: rgb(var(--accent));
-			color: rgb(var(--accent));
-			transform: translateY(-1px);
-		}
-
-		.copy-code-btn:active {
-			transform: translateY(0);
-		}
-
-		.copy-code-btn ion-icon {
-			flex-shrink: 0;
-			font-size: 12px;
-			width: 12px;
-			height: 12px;
-			transition: all 0.2s ease;
-		}
-
-		.copy-code-btn.copied {
-			background: rgba(34, 197, 94, 0.1);
-			border-color: rgb(34, 197, 94);
-			color: rgb(34, 197, 94);
-		}
-
-		.copy-code-btn.copied ion-icon {
-			color: rgb(34, 197, 94);
-		}
-
-		.copy-code-btn.error {
-			background: rgba(239, 68, 68, 0.1);
-			border-color: rgb(239, 68, 68);
-			color: rgb(239, 68, 68);
-		}
-
-		.copy-code-btn.error ion-icon {
-			color: rgb(239, 68, 68);
-		}
-
-		/* Dark theme support */
-		[data-theme="dark"] .copy-code-btn {
-			background: rgba(30, 41, 59, 0.9);
-			color: rgb(var(--gray-light));
-			border-color: rgb(var(--gray));
-		}
-
-		[data-theme="dark"] .copy-code-btn:hover {
-			background: rgba(30, 41, 59, 0.95);
-			color: rgb(var(--accent));
-		}
-
-		[data-theme="dark"] .copy-code-btn.copied {
-			background: rgba(34, 197, 94, 0.15);
-		}
-
-		[data-theme="dark"] .copy-code-btn.error {
-			background: rgba(239, 68, 68, 0.15);
-		}
 		.prose {
 			width: 720px;
 			max-width: calc(100% - 2em);
@@ -343,4 +223,5 @@ const schemaData = {
 		}
 
 	</style>
+
 </BaseLayout>
