@@ -1,0 +1,35 @@
+---
+// CategoryBadge.astro - Reusable category badge component
+import { CATEGORIES } from '../config';
+
+export interface Props {
+  category: string;
+  showIcon?: boolean;
+}
+const { category, showIcon = true } = Astro.props;
+const categoryConfig = CATEGORIES.find(c => c.name === category);
+const icon = categoryConfig?.icon || '📁';
+---
+
+<span class="category-badge">
+  {showIcon && <span class="category-icon">{icon}</span>}
+  <span class="category-name">{category}</span>
+</span>
+
+<style>
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    font-size: 0.9em;
+  }
+
+  .category-icon {
+    font-size: 1em;
+  }
+
+  .category-name {
+    color: rgb(var(--accent));
+    font-weight: 500;
+  }
+</style>

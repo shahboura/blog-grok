@@ -1,16 +1,12 @@
 ---
 // BlogPost.astro
 import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
 import { config } from '../config';
-
-// Type for blog post data
-type BlogPostData = CollectionEntry<'blog'>['data'] & {
-  readingTime?: number; // Reading time in minutes
-};
+import DifficultyBadge from '../components/DifficultyBadge.astro';
+import CategoryBadge from '../components/CategoryBadge.astro';
 
 const {
   title,
@@ -102,13 +98,9 @@ const schemaData = {
 			{/* Post metadata */}
 			<div class="post-meta">
 				<div class="meta-row">
-					{difficulty && (
-						<span class={`difficulty-badge difficulty-${difficulty}`}>
-							{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-						</span>
-					)}
+					{difficulty && <DifficultyBadge level={difficulty} />}
 					<span class="reading-time">{formatReadingTime(displayReadingTime)}</span>
-					{category && <span class="category">📁 {category}</span>}
+					{category && <CategoryBadge category={category} />}
 				</div>
 
 				{series && (
@@ -220,33 +212,9 @@ const schemaData = {
 			align-items: center;
 			margin-bottom: 0.5em;
 		}
-		.difficulty-badge {
-			padding: 0.25em 0.75em;
-			border-radius: 20px;
-			font-size: 0.875em;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.05em;
-		}
-		.difficulty-beginner {
-			background: #10b981;
-			color: white;
-		}
-		.difficulty-intermediate {
-			background: #f59e0b;
-			color: white;
-		}
-		.difficulty-advanced {
-			background: #ef4444;
-			color: white;
-		}
 		.reading-time {
 			color: rgb(var(--gray));
 			font-size: 0.9em;
-		}
-		.category {
-			color: rgb(var(--accent));
-			font-weight: 500;
 		}
 		.series-info {
 			margin-top: 0.5em;

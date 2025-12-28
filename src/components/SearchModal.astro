@@ -1,5 +1,6 @@
 ---
 // SearchModal.astro - Modal component for search functionality
+import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
 ---
 
 <div id="search-modal" class="search-modal">
@@ -29,17 +30,16 @@
       <div class="search-filters">
         <select id="category-filter" class="filter-select">
           <option value="">All Categories</option>
-          <option value="Tech">Tech</option>
-          <option value="Home Lab">Home Lab</option>
-          <option value="Finance">Finance</option>
-          <option value="Leadership">Leadership</option>
+          {CATEGORIES.map(cat => (
+            <option value={cat.name}>{cat.name}</option>
+          ))}
         </select>
 
         <select id="difficulty-filter" class="filter-select">
           <option value="">All Levels</option>
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
+          {DIFFICULTY_LEVELS.map(level => (
+            <option value={level}>{level.charAt(0).toUpperCase() + level.slice(1)}</option>
+          ))}
         </select>
       </div>
     </div>

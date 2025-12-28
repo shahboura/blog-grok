@@ -1,0 +1,37 @@
+---
+// DifficultyBadge.astro - Reusable difficulty badge component
+export interface Props {
+  level: 'beginner' | 'intermediate' | 'advanced';
+}
+const { level } = Astro.props;
+---
+
+<span class={`difficulty-badge difficulty-${level}`}>
+  {level.charAt(0).toUpperCase() + level.slice(1)}
+</span>
+
+<style>
+  .difficulty-badge {
+    padding: 0.25em 0.75em;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .difficulty-beginner {
+    background: #10b981;
+    color: white;
+  }
+
+  .difficulty-intermediate {
+    background: #f59e0b;
+    color: white;
+  }
+
+  .difficulty-advanced {
+    background: #ef4444;
+    color: white;
+  }
+</style>

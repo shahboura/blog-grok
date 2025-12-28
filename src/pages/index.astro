@@ -5,25 +5,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { CATEGORIES } from '../config';
+import DifficultyBadge from '../components/DifficultyBadge.astro';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
 // Group posts by category
-const categories = ['Tech', 'Home Lab', 'Finance', 'Leadership'];
-const postsByCategory = categories.reduce((acc, category) => {
-  acc[category] = posts.filter(post => post.data.category === category);
+const postsByCategory = CATEGORIES.reduce((acc, category) => {
+  acc[category.name] = posts.filter(post => post.data.category === category.name);
   return acc;
 }, {} as Record<string, any[]>);
-
-// Get category icons
-const categoryIcons: Record<string, string> = {
-  'Tech': '💻',
-  'Home Lab': '🏠',
-  'Finance': '💰',
-  'Leadership': '👔'
-};
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -34,15 +27,15 @@ const categoryIcons: Record<string, string> = {
     </p>
   </div>
 
-  {categories.map(category => {
-    const categoryPosts = postsByCategory[category];
+  {CATEGORIES.map(category => {
+    const categoryPosts = postsByCategory[category.name];
     if (categoryPosts.length === 0) return null;
 
     return (
       <section class="category-section">
         <div class="category-header">
           <h2 class="category-title">
-            {categoryIcons[category as keyof typeof categoryIcons]} {category}
+            {category.icon} {category.name}
           </h2>
           <a href="/blog/" class="view-all">View all posts →</a>
         </div>
@@ -68,11 +61,7 @@ const categoryIcons: Record<string, string> = {
                 <div class="post-content">
                   <div class="post-meta">
                     <FormattedDate date={post.data.pubDate} />
-                    {post.data.difficulty && (
-                      <span class={`difficulty-badge difficulty-${post.data.difficulty}`}>
-                        {post.data.difficulty.charAt(0).toUpperCase() + post.data.difficulty.slice(1)}
-                      </span>
-                    )}
+                    {post.data.difficulty && <DifficultyBadge level={post.data.difficulty} />}
                     <span class="reading-time">{formatReadingTime(minutes)}</span>
                   </div>
 
@@ -185,40 +174,19 @@ const categoryIcons: Record<string, string> = {
       padding: 1.5em;
     }
 
-    .post-meta {
-      display: flex;
-      align-items: center;
-      gap: 1em;
-      margin-bottom: 1em;
-      font-size: 0.9em;
-      color: rgb(var(--gray));
-      flex-wrap: wrap;
-    }
+	.post-meta {
+			display: flex;
+			align-items: center;
+			gap: 1em;
+			margin-bottom: 1em;
+			font-size: 0.9em;
+			color: rgb(var(--gray));
+			flex-wrap: wrap;
+		}
 
-    .difficulty-badge {
-      padding: 0.2em 0.6em;
-      border-radius: 12px;
-      font-size: 0.75em;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .difficulty-beginner {
-      background: #10b981;
-      color: white;
-    }
-    .difficulty-intermediate {
-      background: #f59e0b;
-      color: white;
-    }
-    .difficulty-advanced {
-      background: #ef4444;
-      color: white;
-    }
-
-    .reading-time {
-      font-weight: 500;
-    }
+		.reading-time {
+			font-weight: 500;
+		}
 
     .post-title {
       font-size: 1.3em;
