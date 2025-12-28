@@ -18,6 +18,6 @@ const entry: Props = Astro.props;
 const { Content } = await render(entry);
 ---
  
-<BlogPost {...entry.data}>
+<BlogPost {...entry.data} body={entry.body}>
 	<Content />
 </BlogPost>

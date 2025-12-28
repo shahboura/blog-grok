@@ -103,6 +103,24 @@ Summaries should be added to this AGENTS.md file under a "Session Summaries" sec
 
 ## Session Summaries
 
+### 2025-12-28 17:55 - Fixed copy code button sizing and icon issues
+
+**Agent:** orchestrator
+**Summary:** Successfully fixed copy code button sizing issues by removing oversized Ionicons size attributes and implementing proper CSS-controlled sizing, plus improved semantic icon choice.
+
+- ✅ **Icon Sizing Fix**: Removed `size="small"` attributes from all ion-icon elements (16px was too large for 12px font)
+- ✅ **CSS Size Control**: Added explicit `font-size: 12px`, `width: 12px`, `height: 12px` to ion-icon elements for consistent sizing
+- ✅ **Better Icon Choice**: Changed from generic "copy" to semantic "clipboard-outline" for copy-to-clipboard functionality
+- ✅ **Consistent Sizing**: All button states (default, success, error) now use properly sized icons matching button font size
+- ✅ **Build Validation**: All changes pass TypeScript, markdown, link, and frontmatter validation
+- ✅ **Bundle Size**: No impact on bundle size (same icons, just different sizing approach)
+
+**DESIGN**: Properly sized copy code button with semantic clipboard icon
+**UX**: Consistent icon sizing across all button states
+
+- Workflow patterns that worked well: Direct CSS control over icon sizing instead of size attributes, semantic icon selection for better UX
+- Lessons learned for future orchestration: Ionicons size attributes can override CSS; explicit CSS sizing ensures consistency; semantic icons improve user understanding
+
 ### 2025-12-28 17:20 - Fixed responsive layout for header and footer on mobile
 
 **Agent:** orchestrator

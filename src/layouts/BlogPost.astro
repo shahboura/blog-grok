@@ -5,17 +5,19 @@ import FormattedDate from '../components/FormattedDate.astro';
 import { config } from '../config';
 import DifficultyBadge from '../components/DifficultyBadge.astro';
 import CategoryBadge from '../components/CategoryBadge.astro';
-import { copy, checkmark, close } from 'ionicons/icons';
+import { clipboardOutline, checkmark, close } from 'ionicons/icons';
 import getReadingTime from 'reading-time';
 
-const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, minutesRead: readingTime } = Astro.props as any;
+const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, minutesRead: readingTime, body } = Astro.props as any;
 
 // Calculate reading time using the reading-time library (following Astro docs approach)
 let minutesRead = readingTime; // Use from frontmatter if available
 
-// If no reading time in frontmatter, calculate it from the excerpt (available data)
-if (!minutesRead && excerpt) {
-    const readingTimeResult = getReadingTime(excerpt);
+// If no reading time in frontmatter, calculate from content using reading-time library
+if (!minutesRead && body) {
+    // Follow Astro recipe approach: extract text from content, then calculate reading time
+    const textOnPage = body; // body contains the rendered content
+    const readingTimeResult = getReadingTime(textOnPage);
     minutesRead = readingTimeResult.text;
 }
 
@@ -121,10 +123,10 @@ const schemaData = {
  		document.addEventListener('DOMContentLoaded', () => {
  			document.querySelectorAll('pre').forEach(pre => {
  				const button = document.createElement('button');
-  				button.innerHTML = `
-  					<ion-icon name="copy" size="small"></ion-icon>
-  					<span>Copy</span>
-  				`;
+   				button.innerHTML = `
+   					<ion-icon name="clipboard-outline"></ion-icon>
+   					<span>Copy</span>
+   				`;
  				button.className = 'copy-code-btn';
  				button.setAttribute('aria-label', 'Copy code to clipboard');
  				button.setAttribute('title', 'Copy code to clipboard');
@@ -138,11 +140,11 @@ const schemaData = {
  					if (code && navigator.clipboard) {
  						try {
  							await navigator.clipboard.writeText(code.textContent || '');
-  							button.innerHTML = '<ion-icon name="checkmark" size="small"></ion-icon><span>Copied!</span>';
+   							button.innerHTML = '<ion-icon name="checkmark"></ion-icon><span>Copied!</span>';
  							button.classList.add('copied');
  						} catch (err) {
  							console.error('Copy failed:', err);
-  							button.innerHTML = '<ion-icon name="close" size="small"></ion-icon><span>Failed</span>';
+   							button.innerHTML = '<ion-icon name="close"></ion-icon><span>Failed</span>';
  							button.classList.add('error');
  						}
 
@@ -206,6 +208,9 @@ const schemaData = {
 
 		.copy-code-btn ion-icon {
 			flex-shrink: 0;
+			font-size: 12px;
+			width: 12px;
+			height: 12px;
 			transition: all 0.2s ease;
 		}
 
