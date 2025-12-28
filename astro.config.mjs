@@ -23,5 +23,10 @@ export default defineConfig({
         shikiConfig: {
             theme: hyperTheme
         }
+    },
+    vite: {
+        optimizeDeps: {
+            include: ['fuse.js']
+        }
     }
 });
