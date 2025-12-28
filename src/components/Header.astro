@@ -43,19 +43,19 @@ import SearchModal from './SearchModal.astro';
 			</a>
 		</div>
  		<div class="header-actions">
- 			<button id="search-btn" title="Search posts (Ctrl+K)" class="header-btn search-btn">
- 				<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
- 					<circle cx="11" cy="11" r="8"></circle>
- 					<path d="m21 21-4.35-4.35"></path>
- 				</svg>
- 			</button>
- 			<a href="/rss.xml" title="RSS Feed" class="header-btn rss-link">
- 				<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
- 					<path d="M4 11a9 9 0 0 1 9 9"></path>
- 					<path d="M4 4a16 16 0 0 1 16 16"></path>
- 					<circle cx="5" cy="19" r="1"></circle>
- 				</svg>
- 			</a>
+			<button id="search-btn" title="Search posts (Ctrl+K)" class="header-btn search-btn">
+				<svg viewBox="0 0 16 16" aria-hidden="true" width="20" height="20" fill="currentColor">
+					<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+				</svg>
+			</button>
+			<a href="/rss.xml" title="RSS Feed" class="header-btn rss-link">
+				<svg viewBox="0 0 16 16" aria-hidden="true" width="20" height="20" fill="currentColor">
+					<path d="M2.002 2.725a.75.75 0 0 1 .797-.699C8.79 2.42 10.58 5.22 10.296 8.875a.75.75 0 1 1-1.496-.102c.264-2.84-1.31-5.19-6.596-5.486a.75.75 0 0 1-.698-.797Z"/>
+					<path d="M3.002 6.21a.75.75 0 0 1 .797-.699C9.89 5.901 11.68 8.7 11.396 12.355a.75.75 0 1 1-1.496-.102c.264-2.84-1.31-5.19-6.596-5.486a.75.75 0 0 1-.698-.797Z"/>
+					<path d="M4.002 9.695a.75.75 0 0 1 .797-.699c2.972.223 4.745 2.998 4.47 5.638a.75.75 0 1 1-1.496-.102c.165-2.088-1.253-3.935-4.47-4.136a.75.75 0 0 1-.698-.797Z"/>
+					<path d="M2.75 13.5c0-.966.784-1.75 1.75-1.75h.5c.966 0 1.75.784 1.75 1.75v.5a1.75 1.75 0 0 1-1.75 1.75h-.5a1.75 1.75 0 0 1-1.75-1.75v-.5Z"/>
+				</svg>
+			</a>
 			<ThemeToggle />
 		</div>
 	</nav>
@@ -118,7 +118,7 @@ import SearchModal from './SearchModal.astro';
 		align-items: center;
 		justify-content: center;
 		padding: 0.5em;
-		border: 1px solid rgb(var(--gray));
+		border: none;
 		border-radius: 6px;
 		color: rgb(var(--black));
 		text-decoration: none;
@@ -137,13 +137,11 @@ import SearchModal from './SearchModal.astro';
 
 	[data-theme="dark"] .header-btn {
 		color: rgb(var(--gray-dark));
-		border-color: rgb(var(--gray));
 	}
 
 	.header-btn:hover {
-		background: rgb(var(--accent));
-		color: white;
-		border-color: rgb(var(--accent));
+		background: rgba(var(--accent), 0.1);
+		color: rgb(var(--accent));
 		transform: translateY(-1px);
 	}
 
@@ -151,7 +149,22 @@ import SearchModal from './SearchModal.astro';
 		transform: translateY(0);
 	}
 
- 	/* Theme toggle button inherits from header-btn */
+ 	/* Theme toggle button styling - matches header-btn but with custom hover */
+ 	#theme-toggle-btn {
+ 		border: none;
+ 		background: transparent;
+ 		transition: all 0.2s;
+ 	}
+
+ 	#theme-toggle-btn:hover {
+ 		background: rgba(var(--accent), 0.1);
+ 		color: rgb(var(--accent));
+ 		transform: translateY(-1px);
+ 	}
+
+ 	[data-theme="dark"] #theme-toggle-btn {
+ 		color: rgb(var(--gray-dark));
+ 	}
 
  	@media (max-width: 720px) {
  		.social-links {
