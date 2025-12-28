@@ -30,7 +30,7 @@ const recommendedFields = [
   'excerpt',
   'difficulty',
   'tags',
-  'readingTime'
+  'minutesRead'
 ];
 
 // Valid categories

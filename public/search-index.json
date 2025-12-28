@@ -1,5 +1,23 @@
 [
   {
+    "id": "quick-test-post",
+    "slug": "quick-test-post",
+    "title": "Quick Test Post",
+    "description": "A very short test post to verify reading time calculation",
+    "excerpt": "A very short test post to verify reading time calculation",
+    "tags": [
+      "test",
+      "reading-time"
+    ],
+    "category": "Tech",
+    "difficulty": "beginner",
+    "series": null,
+    "part": null,
+    "pubDate": "2025-12-28",
+    "updatedDate": null,
+    "content": "Quick Test Post A very short test post to verify reading time calculation A very short test post to verify reading time calculation test reading-time Tech"
+  },
+  {
     "id": "docker-beginners-part-1",
     "slug": "docker-beginners-part-1",
     "title": "Docker for Beginners: Getting Started",
