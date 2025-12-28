@@ -58,9 +58,9 @@ function getMarkdownFiles(dir) {
   return files;
 }
 
-// Parse frontmatter from markdown
+// Parse frontmatter from markdown (handle both \n and \r\n)
 function parseFrontmatter(content) {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterMatch) return null;
 
   const frontmatter = {};

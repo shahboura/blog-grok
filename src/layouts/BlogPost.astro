@@ -1,34 +1,14 @@
----
 // BlogPost.astro
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
 import { config } from '../config';
+import { remarkPluginFrontmatter } from 'astro:content';
 import DifficultyBadge from '../components/DifficultyBadge.astro';
 import CategoryBadge from '../components/CategoryBadge.astro';
 
-const {
-  title,
-  description,
-  pubDate,
-  updatedDate,
-  heroImage,
-  tags,
-  category,
-  series,
-  part,
-  difficulty,
-  excerpt,
-  readingTime: frontmatterReadingTime
-} = Astro.props;
-
-// Calculate reading time from frontmatter (preferred) or fall back to excerpt/description
-const contentForReadingTime = excerpt || description || '';
-const { minutes } = calculateReadingTime(contentForReadingTime);
-
-// Use frontmatter reading time if available, otherwise use calculated value
-const displayReadingTime = frontmatterReadingTime || minutes;
+// Get reading time from remark plugin frontmatter (already formatted as "X min read")
+const { minutesRead } = remarkPluginFrontmatter;
 
 // Generate schema.org structured data
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -54,13 +34,10 @@ const schemaData = {
     "@type": "WebPage",
     "@id": canonicalUrl.toString()
   },
-  "wordCount": Math.round(contentForReadingTime.split(' ').length),
-  "timeRequired": `PT${Math.max(1, Math.round(minutes))}M`,
   "articleSection": category,
   "keywords": tags ? tags.join(', ') : undefined,
   "url": canonicalUrl.toString()
 };
----
 
 <BaseLayout
 	title={title}
@@ -99,7 +76,7 @@ const schemaData = {
 			<div class="post-meta">
 				<div class="meta-row">
 					{difficulty && <DifficultyBadge level={difficulty} />}
-					<span class="reading-time">{formatReadingTime(displayReadingTime)}</span>
+					<span class="reading-time">{minutesRead}</span>
 					{category && <CategoryBadge category={category} />}
 				</div>
 

@@ -3,6 +3,7 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
+import { remarkReadingTime } from './remark-reading-time.mjs';
 
 import tailwind from '@astrojs/tailwind';
 import hyperTheme from './src/themes/hyper.json';
@@ -15,6 +16,7 @@ export default defineConfig({
         applyBaseStyles: false
     })],
     markdown: {
+        remarkPlugins: [remarkReadingTime],
         shikiConfig: {
             theme: hyperTheme
         }
