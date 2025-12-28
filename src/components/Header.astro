@@ -121,6 +121,9 @@ import { searchOutline, logoRss, logoMastodon, logoTwitter, logoGithub } from 'i
  	/* Theme toggle button styling - matches header-btn but with custom hover */
 
   	@media (max-width: 720px) {
+  		header {
+  			padding: 0 1em;
+  		}
   		.social-links {
   			display: none;
   		}
@@ -131,6 +134,13 @@ import { searchOutline, logoRss, logoMastodon, logoTwitter, logoGithub } from 'i
   			min-width: 2rem;
   			min-height: 2rem;
   			padding: 0.4em;
+  		}
+  		nav {
+  			flex-direction: column;
+  			gap: 1em;
+  		}
+  		.internal-links {
+  			justify-content: center;
   		}
   	}
 </style>

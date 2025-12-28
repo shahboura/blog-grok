@@ -48,4 +48,19 @@ const today = new Date();
 		transform: translateY(-2px);
 	}
 
+	/* Responsive layout */
+	@media (max-width: 720px) {
+		footer {
+			padding: 2em 1em;
+		}
+		.footer-content {
+			flex-direction: column;
+			gap: 1.5em;
+			text-align: center;
+		}
+		.social-links {
+			justify-content: center;
+		}
+	}
+
 </style>
