@@ -6,11 +6,19 @@ import { config } from '../config';
 import DifficultyBadge from '../components/DifficultyBadge.astro';
 import CategoryBadge from '../components/CategoryBadge.astro';
 import { copy, checkmark, close } from 'ionicons/icons';
+import getReadingTime from 'reading-time';
+import { toString } from 'mdast-util-to-string';
 
-const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, readingTime } = Astro.props as any;
+const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, minutesRead: readingTime } = Astro.props as any;
 
-// Use reading time from content collection
-const minutesRead = readingTime ? `${readingTime} min read` : '3 min read';
+// Calculate reading time using the reading-time library (following Astro docs approach)
+let minutesRead = readingTime; // Use from frontmatter if available
+
+// If no reading time in frontmatter, calculate it from the excerpt (available data)
+if (!minutesRead && excerpt) {
+    const readingTimeResult = getReadingTime(excerpt);
+    minutesRead = readingTimeResult.text;
+}
 
 // Generate schema.org structured data
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -79,7 +87,7 @@ const schemaData = {
 			<div class="post-meta">
 				<div class="meta-row">
 					{difficulty && <DifficultyBadge level={difficulty} />}
-					<span class="reading-time">{minutesRead}</span>
+					{minutesRead && <span class="reading-time">{minutesRead}</span>}
 					{category && <CategoryBadge category={category} />}
 				</div>
 
