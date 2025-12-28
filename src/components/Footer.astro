@@ -8,9 +8,8 @@ const today = new Date();
 <footer>
 	&copy; {today.getFullYear()} {config.author.name}. All rights reserved.
 	<div class="social-links">
-		<a href="/rss.xml" title="RSS Feed" class="rss-link">
+		<a href="/rss.xml" title="RSS Feed">
 			<ion-icon name="logo-rss" aria-hidden="true"></ion-icon>
-			<span>RSS</span>
 		</a>
 		<a href="https://m.webtoo.ls/@astro" target="_blank" rel="noopener">
 			<span class="sr-only">Follow Astro on Mastodon</span>
@@ -48,22 +47,5 @@ const today = new Date();
 		color: rgb(var(--gray-dark));
 		transform: translateY(-2px);
 	}
-	.rss-link {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		font-weight: 500;
-		padding: 0.5em 1em;
-		border: 1px solid rgb(var(--gray));
-		border-radius: 6px;
-		transition: all 0.2s;
-		color: rgb(var(--gray));
-	}
 
-	.rss-link:hover {
-		background: rgb(var(--accent));
-		color: white;
-		border-color: rgb(var(--accent));
-		transform: translateY(-2px);
-	}
 </style>
