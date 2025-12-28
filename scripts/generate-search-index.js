@@ -34,16 +34,17 @@ function getMarkdownFiles(dir) {
   return files;
 }
 
-// Parse frontmatter from markdown
+// Parse frontmatter from markdown (handle both \n and \r\n)
 function parseFrontmatter(content) {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterMatch) return null;
 
   const frontmatter = {};
   const lines = frontmatterMatch[1].split('\n');
 
   for (const line of lines) {
-    const match = line.match(/^(\w+):\s*(.*)$/);
+    const trimmedLine = line.trim();
+    const match = trimmedLine.match(/^(\w+):\s*(.*)$/);
     if (match) {
       const [, key, value] = match;
       // Handle arrays (tags)
@@ -65,7 +66,7 @@ function parseFrontmatter(content) {
 // Extract slug from file path
 function getSlug(filePath) {
   const relativePath = filePath.replace(join(__dirname, '..', 'src', 'content', 'blog'), '');
-  return relativePath.replace(/^\//, '').replace(/\.mdx?$/, '');
+  return relativePath.replace(/^[/\\]/, '').replace(/\.mdx?$/, '');
 }
 
 async function generateSearchIndex() {
