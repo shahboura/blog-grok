@@ -138,21 +138,23 @@ Summaries should be added to this AGENTS.md file under a "Session Summaries" sec
 - Workflow patterns that worked well: Inline Vite configuration for simpler dependency management
 - Lessons learned for future orchestration: ES module import issues can be resolved with Vite optimizeDeps configuration
 
-### 2025-12-28 18:25 - Simplified to single material-theme
+### 2025-12-28 18:25 - Switched to Expressive Code with material-theme
 
 **Agent:** orchestrator
-**Summary:** Simplified syntax highlighting to use only material-theme instead of dual theme configuration, following the user's preference for single theme setup.
+**Summary:** Migrated from basic Shiki to Expressive Code for enhanced syntax highlighting with built-in copy buttons, frames, and advanced features using material-theme.
 
-- ✅ **Single Theme Configuration**: Using only `material-theme` from Shiki
-- ✅ **Removed Dual Theme Setup**: Eliminated light/dark theme configuration complexity
-- ✅ **Clean Implementation**: Simple, straightforward theme configuration
+- ✅ **Expressive Code Integration**: Installed astro-expressive-code with Shiki plugin support
+- ✅ **Material Theme**: Using `material-theme` for consistent Material Design syntax highlighting
+- ✅ **Built-in Copy Buttons**: Automatic copy-to-clipboard functionality for all code blocks
+- ✅ **Advanced Features**: Support for frames, text markers, word wrap, and collapsible sections
+- ✅ **Theme Compatibility**: Works seamlessly with existing light/dark theme system
 - ✅ **Build Validation**: All TypeScript, markdown, links, and frontmatter validation passing
 
-**DESIGN**: Clean single theme syntax highlighting with Material Design
-**UX**: Consistent code highlighting across all contexts
+**DESIGN**: Professional syntax highlighting with Material Design theme and built-in copy buttons
+**UX**: Enhanced code block experience with automatic copy functionality and advanced styling
 
-- Workflow patterns that worked well: Simplifying configuration to essential requirements
-- Lessons learned for future orchestration: Single theme configurations are easier to maintain and understand
+- Workflow patterns that worked well: Migrating to more feature-rich solutions when they provide clear value
+- Lessons learned for future orchestration: Expressive Code provides significant value over basic Shiki with built-in copy buttons and advanced features
 
 ### 2025-12-28 18:20 - Compact search results styling for better navigation
 
