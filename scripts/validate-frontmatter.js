@@ -50,7 +50,7 @@ function getMarkdownFiles(dir) {
 
     if (stat.isDirectory()) {
       files.push(...getMarkdownFiles(fullPath));
-    } else if (extname(item) === '.md') {
+    } else if (extname(item) === '.md' || extname(item) === '.mdx') {
       files.push(fullPath);
     }
   }
@@ -67,7 +67,8 @@ function parseFrontmatter(content) {
   const lines = frontmatterMatch[1].split('\n');
 
   for (const line of lines) {
-    const match = line.match(/^(\w+):\s*(.*)$/);
+    const trimmedLine = line.trim();
+    const match = trimmedLine.match(/^(\w+):\s*(.*)$/);
     if (match) {
       const [, key, value] = match;
       frontmatter[key] = value.replace(/^["']|["']$/g, ''); // Remove quotes

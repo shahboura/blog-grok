@@ -12,6 +12,9 @@ import hyperTheme from './src/themes/hyper.json';
 // Update src/config.ts with your site details
 export default defineConfig({
     site: 'https://your-domain.com',
+    prefetch: {
+        defaultStrategy: 'hover'
+    },
     integrations: [mdx(), sitemap(), tailwind({
         applyBaseStyles: false
     })],

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
@@ -10,7 +11,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
 	<article>
 		<div class="hero-image">
-			<img src={AboutHeroImage.src} alt="About Me" width="1020" height="510" />
+			<Image src={AboutHeroImage} alt="About Me" width={1020} height={510} />
 		</div>
 		<div class="prose">
 			<div class="title">

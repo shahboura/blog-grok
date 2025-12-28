@@ -16,6 +16,9 @@ const postsByCategory = CATEGORIES.reduce((acc, category) => {
   acc[category.name] = posts.filter(post => post.data.category === category.name);
   return acc;
 }, {} as Record<string, any[]>);
+
+// Helper function to format reading time
+const formatReadingTime = (min: number) => `${min} min read`;
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -41,8 +44,7 @@ const postsByCategory = CATEGORIES.reduce((acc, category) => {
 
         <div class="posts-grid">
           {categoryPosts.slice(0, 3).map(post => {
-            const contentForReadingTime = post.data.excerpt || post.data.description || '';
-            const { minutes } = calculateReadingTime(contentForReadingTime);
+            const minutes = post.data.readingTime || 3;
 
             return (
               <article class="post-card">

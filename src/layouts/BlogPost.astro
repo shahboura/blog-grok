@@ -1,14 +1,15 @@
-// BlogPost.astro
+---
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { config } from '../config';
-import { remarkPluginFrontmatter } from 'astro:content';
 import DifficultyBadge from '../components/DifficultyBadge.astro';
 import CategoryBadge from '../components/CategoryBadge.astro';
 
-// Get reading time from remark plugin frontmatter (already formatted as "X min read")
-const { minutesRead } = remarkPluginFrontmatter;
+const { title, description, pubDate, updatedDate, heroImage, tags, category, series, part, difficulty, excerpt, readingTime } = Astro.props as any;
+
+// Use reading time from content collection
+const minutesRead = readingTime ? `${readingTime} min read` : '3 min read';
 
 // Generate schema.org structured data
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -38,6 +39,7 @@ const schemaData = {
   "keywords": tags ? tags.join(', ') : undefined,
   "url": canonicalUrl.toString()
 };
+---
 
 <BaseLayout
 	title={title}

@@ -34,6 +34,9 @@ export async function getStaticPaths() {
 
 const { seriesName, posts } = Astro.props;
 const totalParts = posts.length;
+
+// Helper function to format reading time
+const formatReadingTime = (min: number) => `${min} min read`;
 ---
 
 <!doctype html>
@@ -240,8 +243,7 @@ const totalParts = posts.length;
 
       <div class="posts-grid">
         {posts.map((post, index) => {
-          const contentForReadingTime = post.data.excerpt || post.data.description || '';
-          const { minutes } = calculateReadingTime(contentForReadingTime);
+          const minutes = post.data.readingTime || 3;
           const progressPercent = ((index + 1) / totalParts) * 100;
 
           return (

@@ -13,6 +13,7 @@
     "validate:links": "node scripts/validate-links.js",
     "validate:frontmatter": "node scripts/validate-frontmatter.js",
     "validate:all": "npm run validate:types && npm run validate:markdown && npm run validate:links && npm run validate:frontmatter",
+    "analyze": "npx astro build --analyze",
     "pre-commit": "npm run validate:all"
   },
   "dependencies": {
