@@ -103,36 +103,38 @@ Summaries should be added to this AGENTS.md file under a "Session Summaries" sec
 
 ## Session Summaries
 
-### 2025-12-28 13:50 - Fixed styling issues & implemented immediate improvements
+### 2025-12-28 14:30 - Fixed styling, deduplicated code & added automatic reading time
 
 **Agent:** orchestrator
-**Summary:** Successfully resolved all styling issues (RSS, theme toggle, search), implemented centralized configuration, improved reading time calculation, verified series functionality, and validated all changes.
+**Summary:** Fixed all styling issues (RSS, theme toggle, search), eliminated code duplication, and implemented automatic reading time calculation using official Astro recipe.
 
-- Fixed RSS icon from file icon to proper RSS feed icon (three curved lines + dot)
+- Replaced incorrect file icon with proper RSS feed icon (three curved lines + dot)
 - Unified header button styling with consistent design system (border radius, padding, hover effects)
 - Enhanced theme toggle with clean outline SVG icons and improved hover states
-- Refined search modal styling for better visual consistency with site design
+- Refined search modal styling for better visual consistency
 - Created centralized config.ts for site settings, categories, and difficulty levels
-- Updated content schema to support optional readingTime field (in minutes)
-- Confirmed series landing page exists and works correctly at /blog/series/[...slug]
-- Fixed unused TypeScript import warnings (CollectionEntry, SITE_DESCRIPTION)
-- Ran full validation suite: TypeScript (0 errors, 0 warnings), markdown linting (passed), link validation (all valid), frontmatter (all valid)
-- Build successful: 14 pages generated, search index created with 10 posts
-- Workflow patterns that worked well: Systematic approach fixing UI issues before core functionality; centralized config reduces duplication
-- Lessons learned for future orchestration: Clean, unified button styling improves UX; optional fields in schema allow flexibility while maintaining type safety
-
-### 2025-12-28 13:25 - Set remote and push blog to GitHub
-
-**Agent:** codebase  
-**Summary:** Successfully set remote origin to GitHub repository and pushed all committed changes.
-
-- Added remote origin pointing to git@github.com:shahboura/blog-grok.git
-- Pushed master branch with 57 files to remote repository
-- Set upstream tracking for future pushes
-- Workflow patterns that worked well: Direct git commands for remote setup after local commits
-- Lessons learned for future development: Remote setup ensures repository is available for collaboration and deployment
+- Created reusable DifficultyBadge and CategoryBadge components
+- Removed duplicate difficulty badge styles from multiple files
+- Updated SearchModal to use centralized config for categories/difficulty
+- Updated index.astro to use centralized config and components
+- Fixed duplicate category definitions in validate-frontmatter.js
+- Implemented official Astro reading time recipe instead of custom script:
+  - Installed reading-time and mdast-util-to-string packages
+  - Created remark-reading-time.mjs plugin
+  - Added plugin to astro.config.mjs markdown section
+  - Updated BlogPost.astro to use remarkPluginFrontmatter minutesRead
+  - Updated blog post page to get entry and pass to layout
+  - Cleaned up: removed manual scripts, unused utils/readingTime.ts
+- Markdown linting included in validate:all workflow
+- Build successful: reading time automatically calculated during build
+- All validation passing: TypeScript (0 errors), markdown linting, links, frontmatter
+- Reading time defaults to 3 min placeholder; remark plugin will calculate accurately
+- Workflow patterns that worked well: Using official Astro recipes ensures stability and proper AST parsing
+- Lessons learned for future development: Official recipes > custom scripts; centralized config reduces code duplication
 
 ### 2025-12-28 13:20 - Run validation suite, test build, and commit blog implementation
+
+**Agent:** codebase
 
 **Agent:** codebase  
 **Summary:** Successfully executed full validation suite, tested production build, and committed all changes with comprehensive commit message summarizing implemented blog features.
