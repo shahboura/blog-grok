@@ -1,27 +1,34 @@
 ---
-// SearchModal.astro - Modal component for search functionality
+// SearchModal.astro - Modern search modal component
 import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
 import { searchOutline, close, search } from 'ionicons/icons';
 ---
 
 <div id="search-modal" class="search-modal">
-  <div class="search-modal-overlay" id="search-modal-overlay"></div>
-  <div class="search-modal-content">
-    <div class="search-modal-header">
-      <div class="search-input-container">
-        <ion-icon name="search-outline" class="search-icon" aria-hidden="true"></ion-icon>
-        <input
-          type="text"
-          id="search-input"
-          placeholder="Search posts... (Ctrl+K)"
-          class="search-input"
-          autocomplete="off"
-        />
-        <button id="search-close" class="search-close-btn" aria-label="Close search">
-          <ion-icon name="close" aria-hidden="true"></ion-icon>
-        </button>
+  <!-- Backdrop -->
+  <div class="search-backdrop" id="search-modal-overlay"></div>
+
+  <!-- Modal Container -->
+  <div class="search-container">
+    <!-- Search Header -->
+    <div class="search-header">
+      <div class="search-input-wrapper">
+        <div class="search-input-container">
+          <ion-icon name="search-outline" class="search-icon" aria-hidden="true"></ion-icon>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search posts..."
+            class="search-input"
+            autocomplete="off"
+          />
+          <button id="search-close" class="search-close-btn" aria-label="Close search">
+            <ion-icon name="close" aria-hidden="true"></ion-icon>
+          </button>
+        </div>
       </div>
 
+      <!-- Search Filters -->
       <div class="search-filters">
         <select id="category-filter" class="filter-select">
           <option value="">All Categories</option>
@@ -39,10 +46,14 @@ import { searchOutline, close, search } from 'ionicons/icons';
       </div>
     </div>
 
+    <!-- Search Results -->
     <div id="search-results" class="search-results">
-       <div class="search-empty-state">
-        <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
-        <p>Start typing to search posts...</p>
+      <div class="search-empty-state">
+        <div class="empty-state-icon">
+          <ion-icon name="search" aria-hidden="true"></ion-icon>
+        </div>
+        <h3 class="empty-state-title">Search posts</h3>
+        <p class="empty-state-description">Start typing to find what you're looking for</p>
       </div>
     </div>
   </div>
@@ -109,30 +120,40 @@ import { searchOutline, close, search } from 'ionicons/icons';
       this.overlay.addEventListener('click', () => this.close());
       this.closeBtn.addEventListener('click', () => this.close());
 
-       // Keyboard shortcuts
-       document.addEventListener('keydown', (e) => {
-         if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-           this.close();
-         }
-         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-           e.preventDefault();
-           this.open();
-         }
-         // Arrow key navigation in results
-         if (this.modal.classList.contains('active') && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-           e.preventDefault();
-           this.navigateResults(e.key === 'ArrowDown' ? 1 : -1);
-         }
-         if (this.modal.classList.contains('active') && e.key === 'Enter') {
-           const focusedResult = this.resultsContainer.querySelector('.search-result-focused') as HTMLElement;
-           if (focusedResult) {
-             focusedResult.click();
-           }
-         }
-       });
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+            this.close();
+          }
+          if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            this.open();
+          }
+          // Arrow key navigation in results
+          if (this.modal.classList.contains('active') && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+            e.preventDefault();
+            this.navigateResults(e.key === 'ArrowDown' ? 1 : -1);
+          }
+          if (this.modal.classList.contains('active') && e.key === 'Enter') {
+            const focusedResult = this.resultsContainer.querySelector('.search-result-focused') as HTMLElement;
+            if (focusedResult) {
+              focusedResult.click();
+            }
+          }
+        });
 
-      // Search input
-      this.input.addEventListener('input', () => this.performSearch());
+      // Theme change listener
+      document.addEventListener('theme-changed', () => {
+        // Theme changes are handled via CSS data attributes, no JavaScript action needed
+        // This listener ensures we can add any dynamic theme-related logic if needed
+      });
+
+      // Real-time search input (with debounce)
+      let searchTimeout: any;
+      this.input.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => this.performSearch(), 150);
+      });
 
       // Filters
       this.categoryFilter.addEventListener('change', () => this.performSearch());
@@ -194,7 +215,7 @@ import { searchOutline, close, search } from 'ionicons/icons';
         }
 
         this.displayResults(results);
-      }, 100);
+      }, 50);
     }
 
     private showEmptyState() {
@@ -219,8 +240,11 @@ import { searchOutline, close, search } from 'ionicons/icons';
       if (results.length === 0) {
         this.resultsContainer.innerHTML = `
           <div class="search-empty-state">
-            <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
-            <p>No posts found matching your search.</p>
+            <div class="empty-state-icon">
+              <ion-icon name="search" aria-hidden="true"></ion-icon>
+            </div>
+            <h3 class="empty-state-title">No results found</h3>
+            <p class="empty-state-description">Try adjusting your search terms or filters</p>
           </div>
         `;
         return;
@@ -229,8 +253,8 @@ import { searchOutline, close, search } from 'ionicons/icons';
       const resultsHtml = results.map((post, index) => `
         <a href="/blog/${post.slug}/" class="search-result-item" data-index="${index}" tabindex="0">
           <div class="search-result-content">
-            <h3 class="search-result-title">${this.highlightQuery(post.title, this.input.value)}</h3>
-            <p class="search-result-excerpt">${post.excerpt}</p>
+            <div class="search-result-title">${this.highlightQuery(post.title, this.input.value)}</div>
+            <div class="search-result-excerpt">${post.excerpt}</div>
             <div class="search-result-meta">
               <span class="search-result-category">${post.category}</span>
               ${post.difficulty ? `<span class="search-result-difficulty">${post.difficulty}</span>` : ''}
@@ -277,6 +301,7 @@ import { searchOutline, close, search } from 'ionicons/icons';
 </script>
 
 <style>
+  /* ===== MODAL BACKDROP ===== */
   .search-modal {
     position: fixed;
     top: 0;
@@ -286,10 +311,11 @@ import { searchOutline, close, search } from 'ionicons/icons';
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: 2rem 1rem;
   }
 
   .search-modal.active {
@@ -297,48 +323,56 @@ import { searchOutline, close, search } from 'ionicons/icons';
     visibility: visible;
   }
 
-  .search-modal-overlay {
+  .search-backdrop {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
 
-   .search-modal-content {
-     position: relative;
-     width: 90%;
-     max-width: 700px;
-     max-height: 75vh;
-     background: rgb(var(--gray-light));
-     border-radius: 16px;
-     box-shadow: 0 25px 80px rgba(var(--black), 0.25);
-     overflow: hidden;
-     z-index: 1001;
-     display: flex;
-     flex-direction: column;
-     border: 1px solid rgb(var(--gray));
-   }
-
-  [data-theme="dark"] .search-modal-content {
-    background: rgb(var(--gray));
-    box-shadow: 0 20px 60px rgba(var(--black), 0.5);
+  /* ===== MODAL CONTAINER ===== */
+  .search-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    max-height: calc(100vh - 4rem);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
   }
 
-  .search-modal-header {
+  [data-theme="dark"] .search-container {
+    background: rgb(17, 24, 39);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ===== SEARCH HEADER ===== */
+  .search-header {
     padding: 1.5rem;
-    border-bottom: 1px solid rgb(var(--gray));
-    flex-shrink: 0;
+    border-bottom: 1px solid rgb(229, 231, 235);
+  }
+
+  [data-theme="dark"] .search-header {
+    border-bottom-color: rgb(55, 65, 81);
+  }
+
+  /* ===== SEARCH INPUT ===== */
+  .search-input-wrapper {
+    margin-bottom: 1rem;
   }
 
   .search-input-container {
     position: relative;
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
   }
 
   .search-icon {
@@ -346,74 +380,79 @@ import { searchOutline, close, search } from 'ionicons/icons';
     left: 1rem;
     width: 1.25rem;
     height: 1.25rem;
-    color: rgb(var(--gray-dark));
+    color: rgb(107, 114, 128);
     pointer-events: none;
     z-index: 1;
   }
 
-   .search-input {
-     width: 100%;
-     padding: 1rem 3.5rem 1rem 3rem;
-     border: 2px solid rgb(var(--gray));
-     border-radius: 12px;
-     font-size: 1.1rem;
-     font-weight: 500;
-     background: white;
-     color: rgb(var(--black));
-     outline: none;
-     transition: all 0.2s ease;
-     box-sizing: border-box;
-   }
+  .search-input {
+    width: 100%;
+    padding: 0.875rem 3rem 0.875rem 3rem;
+    border: 1px solid rgb(229, 231, 235);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: rgb(249, 250, 251);
+    color: rgb(17, 24, 39);
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
 
   .search-input:focus {
+    background: white;
     border-color: rgb(var(--accent));
-    box-shadow: 0 0 0 3px rgba(var(--accent), 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--accent), 0.1);
   }
 
   .search-input::placeholder {
-    color: rgb(var(--gray));
-    opacity: 0.7;
+    color: rgb(156, 163, 175);
   }
 
   [data-theme="dark"] .search-input {
-    background: rgb(var(--gray-dark));
-    color: rgb(var(--gray-light));
-    border-color: rgb(var(--gray));
+    background: rgb(31, 41, 55);
+    border-color: rgb(55, 65, 81);
+    color: rgb(243, 244, 246);
   }
 
   [data-theme="dark"] .search-input:focus {
+    background: rgb(17, 24, 39);
+    border-color: rgb(var(--accent));
     box-shadow: 0 0 0 3px rgba(var(--accent), 0.2);
+  }
+
+  [data-theme="dark"] .search-input::placeholder {
+    color: rgb(107, 114, 128);
   }
 
   .search-close-btn {
     position: absolute;
     right: 0.75rem;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: 1px solid transparent;
+    width: 2rem;
+    height: 2rem;
+    border: none;
     background: transparent;
-    color: rgb(var(--gray));
+    color: rgb(107, 114, 128);
     cursor: pointer;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     z-index: 1;
   }
 
   .search-close-btn:hover {
-    background: rgb(var(--gray-light));
-    color: rgb(var(--black));
-    border-color: rgb(var(--gray));
+    background: rgb(243, 244, 246);
+    color: rgb(17, 24, 39);
   }
 
   [data-theme="dark"] .search-close-btn:hover {
-    background: rgb(var(--gray));
-    color: rgb(var(--gray-light));
-    border-color: rgb(var(--gray));
+    background: rgb(55, 65, 81);
+    color: rgb(243, 244, 246);
   }
 
+  /* ===== SEARCH FILTERS ===== */
   .search-filters {
     display: flex;
     gap: 0.75rem;
@@ -423,145 +462,163 @@ import { searchOutline, close, search } from 'ionicons/icons';
   .filter-select {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border: 1px solid rgb(var(--gray));
-    border-radius: 6px;
+    border: 1px solid rgb(229, 231, 235);
+    border-radius: 8px;
     background: white;
-    color: rgb(var(--black));
+    color: rgb(17, 24, 39);
     font-size: 0.875rem;
     font-weight: 500;
     outline: none;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     cursor: pointer;
     min-height: 2.25rem;
   }
 
   .filter-select:focus {
     border-color: rgb(var(--accent));
-    box-shadow: 0 0 0 2px rgba(var(--accent), 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--accent), 0.1);
   }
 
   .filter-select:hover {
-    border-color: rgb(var(--gray-dark));
+    border-color: rgb(156, 163, 175);
   }
 
   [data-theme="dark"] .filter-select {
-    background: rgb(var(--gray-dark));
-    color: rgb(var(--gray-light));
-    border-color: rgb(var(--gray));
+    background: rgb(31, 41, 55);
+    border-color: rgb(55, 65, 81);
+    color: rgb(243, 244, 246);
   }
 
   [data-theme="dark"] .filter-select:hover {
-    border-color: rgb(var(--gray-light));
+    border-color: rgb(107, 114, 128);
   }
 
+  [data-theme="dark"] .filter-select:focus {
+    border-color: rgb(var(--accent));
+    box-shadow: 0 0 0 3px rgba(var(--accent), 0.2);
+  }
+
+  /* ===== SEARCH RESULTS ===== */
   .search-results {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(80vh - 200px);
+    padding: 0.5rem;
   }
 
+  /* ===== EMPTY STATE ===== */
   .search-empty-state {
     padding: 3rem 1.5rem;
     text-align: center;
-    color: rgb(var(--gray-dark));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    min-height: 300px;
   }
 
+  .empty-state-icon {
+    width: 3rem;
+    height: 3rem;
+    color: rgb(156, 163, 175);
+    margin-bottom: 1rem;
+  }
 
+  [data-theme="dark"] .empty-state-icon {
+    color: rgb(107, 114, 128);
+  }
 
-  .search-empty-state p {
+  .empty-state-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: rgb(17, 24, 39);
+  }
+
+  [data-theme="dark"] .empty-state-title {
+    color: rgb(243, 244, 246);
+  }
+
+  .empty-state-description {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.875rem;
+    color: rgb(107, 114, 128);
+    max-width: 300px;
   }
 
-  [data-theme="dark"] .search-empty-state {
-    color: rgb(var(--gray));
-  }
-
-  .search-loading-spinner {
-    width: 2rem;
-    height: 2rem;
-    border: 2px solid rgb(var(--gray));
-    border-top: 2px solid rgb(var(--accent));
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1.5rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
+  /* ===== SEARCH RESULT ITEMS ===== */
   .search-result-item {
     display: block;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgb(var(--gray));
     text-decoration: none;
-    transition: all 0.2s ease;
-    position: relative;
-    cursor: pointer;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.15s ease;
   }
 
   .search-result-item:hover,
   .search-result-item:focus,
   .search-result-item.search-result-focused {
-    background: rgba(var(--accent), 0.05);
     outline: none;
   }
 
-  [data-theme="dark"] .search-result-item:hover,
-  [data-theme="dark"] .search-result-item:focus,
-  [data-theme="dark"] .search-result-item.search-result-focused {
-    background: rgba(var(--accent), 0.08);
-  }
-
-  .search-result-item:last-child {
-    border-bottom: none;
-  }
-
   .search-result-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    padding: 1rem;
+    background: rgb(249, 250, 251);
+    border: 1px solid rgb(229, 231, 235);
+    transition: all 0.15s ease;
+    cursor: pointer;
   }
 
+  .search-result-item:hover .search-result-content {
+    background: rgb(243, 244, 246);
+    border-color: rgb(209, 213, 219);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="dark"] .search-result-content {
+    background: rgb(31, 41, 55);
+    border-color: rgb(55, 65, 81);
+  }
+
+  [data-theme="dark"] .search-result-item:hover .search-result-content {
+    background: rgb(55, 65, 81);
+    border-color: rgb(75, 85, 99);
+  }
+
+  /* ===== RESULT TITLE ===== */
   .search-result-title {
-    margin: 0;
-    font-size: 0.95rem;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
     font-weight: 600;
-    color: rgb(var(--black));
+    color: rgb(17, 24, 39);
     line-height: 1.4;
     display: block;
   }
 
   [data-theme="dark"] .search-result-title {
-    color: rgb(var(--gray-light));
+    color: rgb(243, 244, 246);
   }
 
   .search-result-title mark {
-    background: rgba(var(--accent), 0.2);
+    background: rgba(var(--accent), 0.15);
     color: rgb(var(--accent-dark));
     padding: 0.125rem 0.25rem;
-    border-radius: 3px;
+    border-radius: 4px;
     font-weight: 700;
   }
 
   [data-theme="dark"] .search-result-title mark {
-    background: rgba(var(--accent), 0.3);
+    background: rgba(var(--accent), 0.25);
     color: rgb(var(--accent));
   }
 
+  /* ===== RESULT EXCERPT ===== */
   .search-result-excerpt {
-    margin: 0;
-    color: rgb(var(--gray-dark));
-    font-size: 0.8rem;
-    line-height: 1.4;
+    margin: 0 0 0.75rem 0;
+    color: rgb(75, 85, 99);
+    font-size: 0.875rem;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -569,9 +626,10 @@ import { searchOutline, close, search } from 'ionicons/icons';
   }
 
   [data-theme="dark"] .search-result-excerpt {
-    color: rgb(var(--gray));
+    color: rgb(156, 163, 175);
   }
 
+  /* ===== RESULT META ===== */
   .search-result-meta {
     display: flex;
     align-items: center;
@@ -583,58 +641,60 @@ import { searchOutline, close, search } from 'ionicons/icons';
   .search-result-category {
     background: rgb(var(--accent));
     color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.025em;
   }
 
   .search-result-difficulty {
-    background: rgb(var(--gray-light));
-    color: rgb(var(--gray-dark));
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    background: rgb(243, 244, 246);
+    color: rgb(55, 65, 81);
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
     font-weight: 500;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: capitalize;
-    border: 1px solid rgb(var(--gray));
+    border: 1px solid rgb(229, 231, 235);
   }
 
   [data-theme="dark"] .search-result-difficulty {
-    background: rgb(var(--gray));
-    color: rgb(var(--gray-light));
-    border-color: rgb(var(--gray-light));
+    background: rgb(55, 65, 81);
+    color: rgb(209, 213, 219);
+    border-color: rgb(75, 85, 99);
   }
 
   .search-result-date {
-    color: rgb(var(--gray));
+    color: rgb(107, 114, 128);
     font-weight: 500;
     margin-left: auto;
-    opacity: 0.8;
+    font-size: 0.75rem;
   }
 
   [data-theme="dark"] .search-result-date {
-    color: rgb(var(--gray-light));
-    opacity: 0.7;
+    color: rgb(156, 163, 175);
   }
 
-  /* Mobile styles */
+  /* ===== MOBILE RESPONSIVE ===== */
   @media (max-width: 640px) {
-    .search-modal-content {
-      width: 95%;
-      max-height: 90vh;
-      margin: 1rem;
+    .search-modal {
+      padding: 1rem;
+    }
+
+    .search-container {
+      max-height: calc(100vh - 2rem);
       border-radius: 12px;
     }
 
-    .search-modal-header {
+    .search-header {
       padding: 1.25rem;
     }
 
     .search-input {
       font-size: 16px; /* Prevents zoom on iOS */
+      padding: 1rem 3rem 1rem 3rem;
     }
 
     .search-filters {
@@ -647,30 +707,28 @@ import { searchOutline, close, search } from 'ionicons/icons';
     }
 
     .search-results {
-      max-height: calc(90vh - 220px);
+      padding: 0.25rem;
     }
 
-    .search-result-item {
-      padding: 1rem 0.75rem;
+    .search-result-content {
+      padding: 0.875rem;
     }
 
-    .search-result-meta {
-      gap: 0.5rem;
+    .empty-state-title {
+      font-size: 1rem;
     }
 
-    .search-result-date {
-      margin-left: 0;
-      margin-top: 0.25rem;
-      width: 100%;
+    .empty-state-description {
+      font-size: 0.8125rem;
     }
   }
 
-  /* Focus management */
+  /* ===== FOCUS MANAGEMENT ===== */
   .search-modal.active .search-input {
-    animation: focusIn 0.2s ease-out;
+    animation: searchFocusIn 0.2s ease-out;
   }
 
-  @keyframes focusIn {
+  @keyframes searchFocusIn {
     from {
       opacity: 0;
       transform: scale(0.98);
@@ -681,7 +739,7 @@ import { searchOutline, close, search } from 'ionicons/icons';
     }
   }
 
-  /* Scrollbar styling */
+  /* ===== SCROLLBAR STYLING ===== */
   .search-results::-webkit-scrollbar {
     width: 6px;
   }
@@ -691,19 +749,19 @@ import { searchOutline, close, search } from 'ionicons/icons';
   }
 
   .search-results::-webkit-scrollbar-thumb {
-    background: rgb(var(--gray));
+    background: rgb(203, 213, 225);
     border-radius: 3px;
   }
 
   .search-results::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--gray-dark));
+    background: rgb(148, 163, 184);
   }
 
   [data-theme="dark"] .search-results::-webkit-scrollbar-thumb {
-    background: rgb(var(--gray-light));
+    background: rgb(55, 65, 81);
   }
 
   [data-theme="dark"] .search-results::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--gray-dark));
+    background: rgb(75, 85, 99);
   }
 </style>
