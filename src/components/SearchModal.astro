@@ -1,7 +1,7 @@
 ---
 // SearchModal.astro - Modal component for search functionality
 import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
-import { Search, X } from 'lucide-react';
+import { searchOutline, close, search } from 'ionicons/icons';
 ---
 
 <div id="search-modal" class="search-modal">
@@ -9,7 +9,7 @@ import { Search, X } from 'lucide-react';
   <div class="search-modal-content">
     <div class="search-modal-header">
       <div class="search-input-container">
-        <Search client:load size={20} class="search-icon" aria-hidden="true" />
+        <ion-icon name="search-outline" class="search-icon" aria-hidden="true"></ion-icon>
         <input
           type="text"
           id="search-input"
@@ -18,7 +18,7 @@ import { Search, X } from 'lucide-react';
           autocomplete="off"
         />
         <button id="search-close" class="search-close-btn" aria-label="Close search">
-          <X client:load size={20} aria-hidden="true" />
+          <ion-icon name="close" aria-hidden="true"></ion-icon>
         </button>
       </div>
 
@@ -40,8 +40,8 @@ import { Search, X } from 'lucide-react';
     </div>
 
     <div id="search-results" class="search-results">
-      <div class="search-empty-state">
-        <Search size={48} aria-hidden="true" />
+       <div class="search-empty-state">
+        <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
         <p>Start typing to search posts...</p>
       </div>
     </div>
@@ -200,10 +200,7 @@ import { Search, X } from 'lucide-react';
     private showEmptyState() {
       this.resultsContainer.innerHTML = `
         <div class="search-empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
+          <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
           <p>Start typing to search posts...</p>
         </div>
       `;
@@ -211,10 +208,10 @@ import { Search, X } from 'lucide-react';
 
     private showLoadingState() {
       this.resultsContainer.innerHTML = `
-        <div class="search-empty-state">
-          <Search size={48} aria-hidden="true" />
-          <p>Searching...</p>
-        </div>
+      <div class="search-empty-state">
+        <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
+        <p>Searching...</p>
+      </div>
       `;
     }
 
@@ -222,10 +219,7 @@ import { Search, X } from 'lucide-react';
       if (results.length === 0) {
         this.resultsContainer.innerHTML = `
           <div class="search-empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+            <ion-icon name="search" size="large" aria-hidden="true"></ion-icon>
             <p>No posts found matching your search.</p>
           </div>
         `;
@@ -535,6 +529,10 @@ import { Search, X } from 'lucide-react';
 
   .search-result-item:last-child {
     border-bottom: none;
+  }
+
+  .search-result-content {
+    padding: 0.5rem 0;
   }
 
   .search-result-title {

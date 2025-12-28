@@ -1,6 +1,6 @@
 ---
 // Theme Toggle Button
-import { Sun, Moon } from 'lucide-react';
+import { sunny, moon } from 'ionicons/icons';
 ---
 
 <button
@@ -9,8 +9,8 @@ import { Sun, Moon } from 'lucide-react';
   title="Toggle theme"
   class="header-btn theme-toggle-btn"
 >
-  <Sun size={18} class="theme-icon theme-icon-sun" data-sun-icon aria-hidden="true" />
-  <Moon size={18} class="theme-icon theme-icon-moon" data-moon-icon aria-hidden="true" />
+  <ion-icon name="sunny" size="large" class="theme-icon theme-icon-sun" data-sun-icon aria-hidden="true"></ion-icon>
+  <ion-icon name="moon" size="large" class="theme-icon theme-icon-moon" data-moon-icon aria-hidden="true"></ion-icon>
 </button>
 
 <style>
@@ -19,7 +19,7 @@ import { Sun, Moon } from 'lucide-react';
   }
 
   .theme-icon.visible {
-    display: inline;
+    display: inline-block;
   }
 </style>
 
