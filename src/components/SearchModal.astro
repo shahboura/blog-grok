@@ -69,6 +69,7 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
     private difficultyFilter: HTMLSelectElement;
     private fuse: Fuse<any> | null = null;
     private searchIndex: any[] = [];
+    private currentFocusIndex: number = -1;
 
     constructor() {
       this.modal = document.getElementById('search-modal')!;
@@ -116,16 +117,27 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
       this.overlay.addEventListener('click', () => this.close());
       this.closeBtn.addEventListener('click', () => this.close());
 
-      // Keyboard shortcuts
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-          this.close();
-        }
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-          e.preventDefault();
-          this.open();
-        }
-      });
+       // Keyboard shortcuts
+       document.addEventListener('keydown', (e) => {
+         if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+           this.close();
+         }
+         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+           e.preventDefault();
+           this.open();
+         }
+         // Arrow key navigation in results
+         if (this.modal.classList.contains('active') && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+           e.preventDefault();
+           this.navigateResults(e.key === 'ArrowDown' ? 1 : -1);
+         }
+         if (this.modal.classList.contains('active') && e.key === 'Enter') {
+           const focusedResult = this.resultsContainer.querySelector('.search-result-focused') as HTMLElement;
+           if (focusedResult) {
+             focusedResult.click();
+           }
+         }
+       });
 
       // Search input
       this.input.addEventListener('input', () => this.performSearch());
@@ -137,7 +149,11 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
 
     private open() {
       this.modal.classList.add('active');
-      this.input.focus();
+      // Focus input after modal animation completes
+      setTimeout(() => {
+        this.input.focus();
+        this.input.select(); // Select all text for better UX
+      }, 100);
       document.body.style.overflow = 'hidden';
     }
 
@@ -162,25 +178,31 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
         return;
       }
 
-      let results = this.searchIndex;
+      // Show loading state
+      this.showLoadingState();
 
-      // Apply text search if query exists
-      if (query) {
-        const searchResults = this.fuse.search(query);
-        results = searchResults.map(result => result.item);
-      }
+      // Perform search with small delay for better UX
+      setTimeout(() => {
+        let results = this.searchIndex;
 
-      // Apply category filter
-      if (categoryFilter) {
-        results = results.filter(post => post.category === categoryFilter);
-      }
+        // Apply text search if query exists
+        if (query) {
+          const searchResults = this.fuse!.search(query);
+          results = searchResults.map(result => result.item);
+        }
 
-      // Apply difficulty filter
-      if (difficultyFilter) {
-        results = results.filter(post => post.difficulty === difficultyFilter);
-      }
+        // Apply category filter
+        if (categoryFilter) {
+          results = results.filter(post => post.category === categoryFilter);
+        }
 
-      this.displayResults(results);
+        // Apply difficulty filter
+        if (difficultyFilter) {
+          results = results.filter(post => post.difficulty === difficultyFilter);
+        }
+
+        this.displayResults(results);
+      }, 100);
     }
 
     private showEmptyState() {
@@ -191,6 +213,15 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
             <path d="m21 21-4.35-4.35"></path>
           </svg>
           <p>Start typing to search posts...</p>
+        </div>
+      `;
+    }
+
+    private showLoadingState() {
+      this.resultsContainer.innerHTML = `
+        <div class="search-empty-state">
+          <div class="search-loading-spinner"></div>
+          <p>Searching...</p>
         </div>
       `;
     }
@@ -209,8 +240,8 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
         return;
       }
 
-      const resultsHtml = results.map(post => `
-        <a href="/blog/${post.slug}/" class="search-result-item">
+      const resultsHtml = results.map((post, index) => `
+        <a href="/blog/${post.slug}/" class="search-result-item" data-index="${index}" tabindex="0">
           <div class="search-result-content">
             <h3 class="search-result-title">${this.highlightQuery(post.title, this.input.value)}</h3>
             <p class="search-result-excerpt">${post.excerpt}</p>
@@ -224,6 +255,26 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
       `).join('');
 
       this.resultsContainer.innerHTML = resultsHtml;
+      this.currentFocusIndex = -1;
+    }
+
+    private navigateResults(direction: number) {
+      const results = this.resultsContainer.querySelectorAll('.search-result-item');
+      if (results.length === 0) return;
+
+      // Remove previous focus
+      const prevFocused = this.resultsContainer.querySelector('.search-result-focused');
+      if (prevFocused) {
+        prevFocused.classList.remove('search-result-focused');
+      }
+
+      // Calculate new focus index
+      this.currentFocusIndex = Math.max(0, Math.min(results.length - 1, this.currentFocusIndex + direction));
+
+      // Add focus to new item
+      const newFocused = results[this.currentFocusIndex] as HTMLElement;
+      newFocused.classList.add('search-result-focused');
+      newFocused.focus();
     }
 
     private highlightQuery(text: string, query: string): string {
@@ -271,19 +322,20 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
     -webkit-backdrop-filter: blur(8px);
   }
 
-  .search-modal-content {
-    position: relative;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    background: rgb(var(--gray-light));
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(var(--black), 0.3);
-    overflow: hidden;
-    z-index: 1001;
-    display: flex;
-    flex-direction: column;
-  }
+   .search-modal-content {
+     position: relative;
+     width: 90%;
+     max-width: 700px;
+     max-height: 75vh;
+     background: rgb(var(--gray-light));
+     border-radius: 16px;
+     box-shadow: 0 25px 80px rgba(var(--black), 0.25);
+     overflow: hidden;
+     z-index: 1001;
+     display: flex;
+     flex-direction: column;
+     border: 1px solid rgb(var(--gray));
+   }
 
   [data-theme="dark"] .search-modal-content {
     background: rgb(var(--gray));
@@ -313,19 +365,19 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
     z-index: 1;
   }
 
-  .search-input {
-    width: 100%;
-    padding: 0.875rem 3rem 0.875rem 3rem;
-    border: 2px solid rgb(var(--gray));
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    background: white;
-    color: rgb(var(--black));
-    outline: none;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
-  }
+   .search-input {
+     width: 100%;
+     padding: 1rem 3.5rem 1rem 3rem;
+     border: 2px solid rgb(var(--gray));
+     border-radius: 12px;
+     font-size: 1.1rem;
+     font-weight: 500;
+     background: white;
+     color: rgb(var(--black));
+     outline: none;
+     transition: all 0.2s ease;
+     box-sizing: border-box;
+   }
 
   .search-input:focus {
     border-color: rgb(var(--accent));
@@ -447,17 +499,36 @@ import { CATEGORIES, DIFFICULTY_LEVELS } from '../config';
     font-weight: 500;
   }
 
-  .search-result-item {
-    display: block;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgb(var(--gray));
-    text-decoration: none;
-    transition: all 0.2s ease;
-    position: relative;
+  .search-loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid rgb(var(--gray));
+    border-top: 2px solid rgb(var(--accent));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1.5rem;
   }
 
-  .search-result-item:hover {
-    background: rgba(var(--accent), 0.06);
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+   .search-result-item {
+     display: block;
+     padding: 1rem 1.5rem;
+     border-bottom: 1px solid rgb(var(--gray));
+     text-decoration: none;
+     transition: all 0.15s ease;
+     position: relative;
+   }
+
+  .search-result-item:hover,
+  .search-result-item:focus,
+  .search-result-item.search-result-focused {
+    background: rgba(var(--accent), 0.08);
+    outline: 2px solid rgba(var(--accent), 0.3);
+    outline-offset: -2px;
   }
 
   .search-result-item:last-child {
