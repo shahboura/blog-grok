@@ -5,9 +5,11 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
+import { config } from '../config';
 
-type Props = CollectionEntry<'blog'>['data'] & {
-  slug?: string;
+// Type for blog post data
+type BlogPostData = CollectionEntry<'blog'>['data'] & {
+  readingTime?: number; // Reading time in minutes
 };
 
 const {
@@ -21,12 +23,16 @@ const {
   series,
   part,
   difficulty,
-  excerpt
+  excerpt,
+  readingTime: frontmatterReadingTime
 } = Astro.props;
 
-// Calculate reading time from description or excerpt as approximation
+// Calculate reading time from frontmatter (preferred) or fall back to excerpt/description
 const contentForReadingTime = excerpt || description || '';
 const { minutes } = calculateReadingTime(contentForReadingTime);
+
+// Use frontmatter reading time if available, otherwise use calculated value
+const displayReadingTime = frontmatterReadingTime || minutes;
 
 // Generate schema.org structured data
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -40,13 +46,13 @@ const schemaData = {
   "dateModified": updatedDate ? updatedDate.toISOString() : pubDate.toISOString(),
   "author": {
     "@type": "Person",
-    "name": "Blog Author", // TODO: Make configurable
-    "url": Astro.site?.toString() || 'https://blog.example.com'
+    "name": config.author.name,
+    "url": new URL(config.author.url, Astro.site || 'https://example.com').toString()
   },
   "publisher": {
     "@type": "Organization",
-    "name": "Tech & Life Blog",
-    "url": Astro.site?.toString() || 'https://blog.example.com'
+    "name": config.title,
+    "url": Astro.site?.toString() || 'https://example.com'
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
@@ -68,7 +74,7 @@ const schemaData = {
 	article={{
 		publishedTime: pubDate,
 		modifiedTime: updatedDate,
-		author: "Blog Author", // TODO: Make configurable
+		author: config.author.name,
 		section: category,
 		tags: tags
 	}}
@@ -101,7 +107,7 @@ const schemaData = {
 							{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
 						</span>
 					)}
-					<span class="reading-time">{formatReadingTime(minutes)}</span>
+					<span class="reading-time">{formatReadingTime(displayReadingTime)}</span>
 					{category && <span class="category">📁 {category}</span>}
 				</div>
 

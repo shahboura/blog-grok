@@ -29,7 +29,8 @@ const requiredFields = [
 const recommendedFields = [
   'excerpt',
   'difficulty',
-  'tags'
+  'tags',
+  'readingTime'
 ];
 
 // Valid categories

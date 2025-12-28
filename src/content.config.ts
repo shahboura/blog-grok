@@ -19,6 +19,7 @@ const blog = defineCollection({
 			part: z.number().optional(),
 			difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
 			excerpt: z.string(),
+			readingTime: z.number().optional(), // Add optional readingTime field (in minutes)
 			featured_image: image().optional(),
 			canonical: z.string().url().optional(),
 		}),

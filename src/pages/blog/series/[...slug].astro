@@ -5,7 +5,7 @@ import Footer from '../../../components/Footer.astro';
 import FormattedDate from '../../../components/FormattedDate.astro';
 import Header from '../../../components/Header.astro';
 import { calculateReadingTime, formatReadingTime } from '../../../utils/readingTime';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
+import { SITE_TITLE } from '../../../consts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');

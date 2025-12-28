@@ -30,6 +30,7 @@ tags: ["tag1", "tag2", "tag3"]  # Array of relevant tags
 category: "Tech"
 excerpt: "A short summary that appears in previews and series listings"
 difficulty: "beginner"  # beginner, intermediate, or advanced
+readingTime: 5  # Reading time in minutes (optional, auto-calculated if omitted)
 ---
 ```
 

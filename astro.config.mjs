@@ -7,9 +7,10 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import hyperTheme from './src/themes/hyper.json';
 
-// https://astro.build/config
+// TODO: Update this with your actual domain
+// Update src/config.ts with your site details
 export default defineConfig({
-    site: 'https://astro-blog.example.com',
+    site: 'https://your-domain.com',
     integrations: [mdx(), sitemap(), tailwind({
         applyBaseStyles: false
     })],
