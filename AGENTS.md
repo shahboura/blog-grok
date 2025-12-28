@@ -103,6 +103,42 @@ Summaries should be added to this AGENTS.md file under a "Session Summaries" sec
 
 ## Session Summaries
 
+### 2025-12-28 18:25 - Fix Fuse.js MIME type error in dev server
+
+**Agent:** orchestrator
+**Summary:** Resolved Fuse.js ES module loading error that was blocking search functionality in development server.
+
+- ✅ **Vite Configuration**: Added optimizeDeps include for 'fuse.js' to properly handle ES module import
+- ✅ **Inline Config**: Moved Vite configuration directly into astro.config.mjs for simpler setup
+- ✅ **Removed Redundancy**: Deleted separate vite.config.mjs file to avoid duplication
+- ✅ **Build Validation**: All TypeScript, markdown, links, and frontmatter checks pass
+- ✅ **Bundle Size**: Maintained 22.89 kB (gzipped: 7.99 kB) with no performance impact
+
+**🔧 Dev Server Fix**: Resolved 'disallowed MIME type' error when loading Fuse.js module
+
+- Workflow patterns that worked well: Inline Vite configuration for simpler dependency management
+- Lessons learned for future orchestration: ES module import issues can be resolved with Vite optimizeDeps configuration
+
+### 2025-12-28 18:25 - Complete copy code button redesign to icon-only compact button
+
+**Agent:** orchestrator
+**Summary:** Completely redesigned copy code button from text+icon to ultra-compact icon-only button (24x24px) with wrapper-based positioning for reliable placement.
+
+- ✅ **Icon-Only Design**: Removed text labels entirely, now uses only clipboard-outline/checkmark/close icons
+- ✅ **Perfect Dimensions**: Fixed 24x24px button with centered 14px icon for optimal proportions
+- ✅ **Wrapper-Based Positioning**: Created code block wrappers with relative positioning for reliable absolute button placement
+- ✅ **Optimal Placement**: Positioned at 6px offset for seamless code block integration
+- ✅ **Clean Styling**: Removed all padding/gap constraints, pure flexbox centering for precise icon placement
+- ✅ **Consistent States**: All button states (default, success, error) use appropriately sized icons
+- ✅ **Build Validation**: All TypeScript, markdown, links, and frontmatter validation passing
+- ✅ **Bundle Size**: No impact on bundle size (same icons, optimized layout)
+
+**DESIGN**: Ultra-compact icon-only copy button perfectly positioned in code blocks
+**UX**: Eliminates width issues, provides clean visual feedback with icon changes
+
+- Workflow patterns that worked well: Wrapper-based DOM manipulation for reliable positioning, complete redesign approach when incremental fixes fail
+- Lessons learned for future orchestration: DOM structure modification can provide more reliable positioning than CSS-only solutions; wrapper elements ensure proper positioning context
+
 ### 2025-12-28 18:20 - Compact search results styling for better navigation
 
 **Agent:** orchestrator
