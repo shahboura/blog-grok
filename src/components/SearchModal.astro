@@ -80,8 +80,8 @@ import { searchOutline, close, search } from 'ionicons/icons';
       this.input = document.getElementById('search-input') as HTMLInputElement;
       this.closeBtn = document.getElementById('search-close')!;
       this.resultsContainer = document.getElementById('search-results')!;
-      this.categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
-      this.difficultyFilter = document.getElementById('difficulty-filter') as HTMLSelectElement;
+      this.categoryFilter = document.getElementById('category-filter') as unknown as HTMLSelectElement;
+      this.difficultyFilter = document.getElementById('difficulty-filter') as unknown as HTMLSelectElement;
 
       this.init();
     }
