@@ -1,0 +1,284 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// Group posts by category
+const categories = ['Tech', 'Home Lab', 'Finance', 'Leadership'];
+const postsByCategory = categories.reduce((acc, category) => {
+  acc[category] = posts.filter(post => post.data.category === category);
+  return acc;
+}, {} as Record<string, any[]>);
+
+// Get category icons
+const categoryIcons: Record<string, string> = {
+  'Tech': '💻',
+  'Home Lab': '🏠',
+  'Finance': '💰',
+  'Leadership': '👔'
+};
+---
+
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <div class="hero">
+    <h1>Welcome to My Blog</h1>
+    <p class="hero-description">
+      Exploring technology, home automation, personal finance, and leadership through in-depth articles and tutorials.
+    </p>
+  </div>
+
+  {categories.map(category => {
+    const categoryPosts = postsByCategory[category];
+    if (categoryPosts.length === 0) return null;
+
+    return (
+      <section class="category-section">
+        <div class="category-header">
+          <h2 class="category-title">
+            {categoryIcons[category as keyof typeof categoryIcons]} {category}
+          </h2>
+          <a href="/blog/" class="view-all">View all posts →</a>
+        </div>
+
+        <div class="posts-grid">
+          {categoryPosts.slice(0, 3).map(post => {
+            const contentForReadingTime = post.data.excerpt || post.data.description || '';
+            const { minutes } = calculateReadingTime(contentForReadingTime);
+
+            return (
+              <article class="post-card">
+                {post.data.heroImage && (
+                  <div class="post-image">
+                    <Image
+                      width={400}
+                      height={200}
+                      src={post.data.heroImage}
+                      alt={post.data.title}
+                    />
+                  </div>
+                )}
+
+                <div class="post-content">
+                  <div class="post-meta">
+                    <FormattedDate date={post.data.pubDate} />
+                    {post.data.difficulty && (
+                      <span class={`difficulty-badge difficulty-${post.data.difficulty}`}>
+                        {post.data.difficulty.charAt(0).toUpperCase() + post.data.difficulty.slice(1)}
+                      </span>
+                    )}
+                    <span class="reading-time">{formatReadingTime(minutes)}</span>
+                  </div>
+
+                  <h3 class="post-title">
+                    <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                  </h3>
+
+                  {post.data.excerpt && (
+                    <p class="post-excerpt">{post.data.excerpt}</p>
+                  )}
+
+                  {post.data.series && (
+                    <div class="series-indicator">
+                      📚 Part of "{post.data.series}" series
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    );
+  })}
+
+  <style>
+    .hero {
+      text-align: center;
+      padding: 4em 2em 3em;
+      background: linear-gradient(135deg, rgb(var(--accent)) 0%, rgb(var(--accent-dark)) 100%);
+      color: white;
+      border-radius: 12px;
+      margin-bottom: 3em;
+    }
+    .hero h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      font-weight: 700;
+    }
+    .hero-description {
+      font-size: 1.2em;
+      max-width: 600px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+
+    .category-section {
+      margin-bottom: 4em;
+    }
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2em;
+      padding-bottom: 1em;
+      border-bottom: 2px solid rgb(var(--gray));
+    }
+    .category-title {
+      font-size: 2em;
+      color: rgb(var(--accent));
+      margin: 0;
+    }
+    .view-all {
+      color: rgb(var(--accent));
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .view-all:hover {
+      color: rgb(var(--accent-dark));
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2em;
+    }
+
+    .post-card {
+      background: rgb(var(--gray-light));
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    [data-theme="dark"] .post-card {
+      background: rgb(var(--gray-dark));
+    }
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .post-image {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+    }
+    .post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.2s;
+    }
+    .post-card:hover .post-image img {
+      transform: scale(1.05);
+    }
+
+    .post-content {
+      padding: 1.5em;
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin-bottom: 1em;
+      font-size: 0.9em;
+      color: rgb(var(--gray));
+      flex-wrap: wrap;
+    }
+
+    .difficulty-badge {
+      padding: 0.2em 0.6em;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .difficulty-beginner {
+      background: #10b981;
+      color: white;
+    }
+    .difficulty-intermediate {
+      background: #f59e0b;
+      color: white;
+    }
+    .difficulty-advanced {
+      background: #ef4444;
+      color: white;
+    }
+
+    .reading-time {
+      font-weight: 500;
+    }
+
+    .post-title {
+      font-size: 1.3em;
+      margin-bottom: 0.5em;
+      line-height: 1.3;
+    }
+    .post-title a {
+      text-decoration: none;
+      color: rgb(var(--black));
+      transition: color 0.2s;
+    }
+    [data-theme="dark"] .post-title a {
+      color: rgb(var(--gray-light));
+    }
+    .post-title a:hover {
+      color: rgb(var(--accent));
+    }
+
+    .post-excerpt {
+      color: rgb(var(--gray-dark));
+      line-height: 1.6;
+      margin-bottom: 1em;
+    }
+
+    .series-indicator {
+      font-size: 0.9em;
+      color: rgb(var(--accent));
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 3em 1em 2em;
+      }
+      .hero h1 {
+        font-size: 2.5em;
+      }
+      .hero-description {
+        font-size: 1.1em;
+      }
+
+      .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1em;
+      }
+      .category-title {
+        font-size: 1.8em;
+      }
+
+      .posts-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5em;
+      }
+
+      .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5em;
+      }
+    }
+  </style>
+</BaseLayout>

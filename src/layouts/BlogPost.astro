@@ -1,0 +1,291 @@
+---
+// BlogPost.astro
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { calculateReadingTime, formatReadingTime } from '../utils/readingTime';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+  slug?: string;
+};
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  tags,
+  category,
+  series,
+  part,
+  difficulty,
+  excerpt
+} = Astro.props;
+
+// Calculate reading time from description or excerpt as approximation
+const contentForReadingTime = excerpt || description || '';
+const { minutes } = calculateReadingTime(contentForReadingTime);
+
+// Generate schema.org structured data
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": title,
+  "description": description,
+  "image": heroImage ? new URL(heroImage.src, Astro.url).toString() : undefined,
+  "datePublished": pubDate.toISOString(),
+  "dateModified": updatedDate ? updatedDate.toISOString() : pubDate.toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": "Blog Author", // TODO: Make configurable
+    "url": Astro.site?.toString() || 'https://blog.example.com'
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tech & Life Blog",
+    "url": Astro.site?.toString() || 'https://blog.example.com'
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalUrl.toString()
+  },
+  "wordCount": Math.round(contentForReadingTime.split(' ').length),
+  "timeRequired": `PT${Math.max(1, Math.round(minutes))}M`,
+  "articleSection": category,
+  "keywords": tags ? tags.join(', ') : undefined,
+  "url": canonicalUrl.toString()
+};
+---
+
+<BaseLayout
+	title={title}
+	description={description}
+	image={heroImage}
+	structuredData={schemaData}
+	article={{
+		publishedTime: pubDate,
+		modifiedTime: updatedDate,
+		author: "Blog Author", // TODO: Make configurable
+		section: category,
+		tags: tags
+	}}
+>
+	<article>
+		<div class="hero-image">
+			{heroImage && <Image width={1020} height={510} src={heroImage} alt={title} />}
+		</div>
+		<div class="prose">
+			<div class="title">
+				<div class="date">
+					<FormattedDate date={pubDate} />
+					{
+						updatedDate && (
+							<div class="last-updated-on">
+								Last updated on <FormattedDate date={updatedDate} />
+							</div>
+						)
+					}
+				</div>
+				<h1>{title}</h1>
+				<hr />
+			</div>
+
+			{/* Post metadata */}
+			<div class="post-meta">
+				<div class="meta-row">
+					{difficulty && (
+						<span class={`difficulty-badge difficulty-${difficulty}`}>
+							{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+						</span>
+					)}
+					<span class="reading-time">{formatReadingTime(minutes)}</span>
+					{category && <span class="category">📁 {category}</span>}
+				</div>
+
+				{series && (
+					<div class="series-info">
+						<span class="series-label">📚 Series: {series}</span>
+						{part && <span class="part-label">Part {part}</span>}
+					</div>
+				)}
+
+				{excerpt && (
+					<div class="excerpt">
+						<p>{excerpt}</p>
+					</div>
+				)}
+			</div>
+
+			{/* Series navigation */}
+			{series && (
+				<div class="series-navigation">
+					<a href={`/blog/series/${series.toLowerCase().replace(/\s+/g, '-')}`} class="series-link">
+						← View Series Overview
+					</a>
+				</div>
+			)}
+
+			<slot />
+		</div>
+	</article>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('pre').forEach(pre => {
+				const button = document.createElement('button');
+				button.textContent = 'Copy';
+				button.style.cssText = `
+					position: absolute;
+					top: 8px;
+					right: 8px;
+					padding: 4px 8px;
+					font-size: 12px;
+					background: #f0f0f0;
+					border: 1px solid #ccc;
+					border-radius: 3px;
+					cursor: pointer;
+				`;
+				button.addEventListener('click', async () => {
+					const code = pre.querySelector('code');
+					if (code && navigator.clipboard) {
+						try {
+							await navigator.clipboard.writeText(code.textContent || '');
+						} catch (err) {
+							console.error('Copy failed:', err);
+						}
+					}
+				});
+				pre.style.position = 'relative';
+				pre.appendChild(button);
+			});
+		});
+	</script>
+
+	<style>
+		.hero-image {
+			width: 100%;
+		}
+		.hero-image img {
+			display: block;
+			margin: 0 auto;
+			border-radius: 12px;
+			box-shadow: var(--box-shadow);
+		}
+		.prose {
+			width: 720px;
+			max-width: calc(100% - 2em);
+			margin: auto;
+			padding: 1em;
+			color: rgb(var(--gray-dark));
+		}
+		.title {
+			margin-bottom: 1em;
+			padding: 1em 0;
+			text-align: center;
+			line-height: 1;
+		}
+		.title h1 {
+			margin: 0 0 0.5em 0;
+		}
+		.date {
+			margin-bottom: 0.5em;
+			color: rgb(var(--gray));
+		}
+		.last-updated-on {
+			font-style: italic;
+		}
+		.post-meta {
+			margin: 1.5em 0;
+			padding: 1em;
+			background: rgb(var(--gray-light));
+			border-radius: 8px;
+			border-left: 4px solid rgb(var(--accent));
+		}
+		[data-theme="dark"] .post-meta {
+			background: rgb(var(--gray-dark));
+		}
+		.meta-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1em;
+			align-items: center;
+			margin-bottom: 0.5em;
+		}
+		.difficulty-badge {
+			padding: 0.25em 0.75em;
+			border-radius: 20px;
+			font-size: 0.875em;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+		.difficulty-beginner {
+			background: #10b981;
+			color: white;
+		}
+		.difficulty-intermediate {
+			background: #f59e0b;
+			color: white;
+		}
+		.difficulty-advanced {
+			background: #ef4444;
+			color: white;
+		}
+		.reading-time {
+			color: rgb(var(--gray));
+			font-size: 0.9em;
+		}
+		.category {
+			color: rgb(var(--accent));
+			font-weight: 500;
+		}
+		.series-info {
+			margin-top: 0.5em;
+			padding-top: 0.5em;
+			border-top: 1px solid rgb(var(--gray));
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.series-label {
+			font-weight: 600;
+			color: rgb(var(--accent));
+		}
+		.part-label {
+			background: rgb(var(--accent));
+			color: white;
+			padding: 0.25em 0.5em;
+			border-radius: 4px;
+			font-size: 0.875em;
+			font-weight: 600;
+		}
+		.excerpt {
+			margin-top: 1em;
+			font-size: 1.1em;
+			line-height: 1.6;
+			font-style: italic;
+			color: rgb(var(--gray-dark));
+		}
+		.series-navigation {
+			margin: 2em 0;
+			text-align: center;
+		}
+		.series-link {
+			display: inline-block;
+			padding: 0.75em 1.5em;
+			background: rgb(var(--accent));
+			color: white;
+			text-decoration: none;
+			border-radius: 6px;
+			font-weight: 500;
+			transition: background 0.2s;
+		}
+		.series-link:hover {
+			background: rgb(var(--accent-dark));
+		}
+
+	</style>
+</BaseLayout>

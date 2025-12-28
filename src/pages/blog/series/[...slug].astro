@@ -1,0 +1,293 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import FormattedDate from '../../../components/FormattedDate.astro';
+import Header from '../../../components/Header.astro';
+import { calculateReadingTime, formatReadingTime } from '../../../utils/readingTime';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+
+  // Group posts by series
+  const seriesMap = new Map<string, any[]>();
+
+  posts.forEach(post => {
+    if (post.data.series) {
+      const seriesSlug = post.data.series.toLowerCase().replace(/\s+/g, '-');
+      if (!seriesMap.has(seriesSlug)) {
+        seriesMap.set(seriesSlug, []);
+      }
+      seriesMap.get(seriesSlug)!.push(post);
+    }
+  });
+
+  // Create paths for each series
+  return Array.from(seriesMap.entries()).map(([seriesSlug, posts]) => ({
+    params: { slug: seriesSlug },
+    props: {
+      seriesName: posts[0].data.series,
+      posts: posts.sort((a, b) => (a.data.part || 0) - (b.data.part || 0))
+    }
+  }));
+}
+
+const { seriesName, posts } = Astro.props;
+const totalParts = posts.length;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`${seriesName} - ${SITE_TITLE}`} description={`Complete series: ${seriesName}. ${totalParts} parts.`} />
+    <style>
+      main {
+        width: 960px;
+        max-width: calc(100% - 2em);
+        margin: 0 auto;
+        padding: 2em 1em;
+      }
+      .series-header {
+        text-align: center;
+        margin-bottom: 3em;
+        padding: 2em;
+        background: rgb(var(--gray-light));
+        border-radius: 12px;
+      }
+      [data-theme="dark"] .series-header {
+        background: rgb(var(--gray-dark));
+      }
+      .series-title {
+        font-size: 2.5em;
+        margin-bottom: 0.5em;
+        color: rgb(var(--accent));
+      }
+      .series-stats {
+        color: rgb(var(--gray));
+        font-size: 1.1em;
+      }
+      .posts-grid {
+        display: grid;
+        gap: 2em;
+      }
+      .post-card {
+        background: rgb(var(--gray-light));
+        border-radius: 12px;
+        padding: 1.5em;
+        border-left: 4px solid rgb(var(--accent));
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      [data-theme="dark"] .post-card {
+        background: rgb(var(--gray-dark));
+      }
+      .post-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+      }
+      .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1em;
+      }
+      .part-badge {
+        background: rgb(var(--accent));
+        color: white;
+        padding: 0.5em 1em;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9em;
+      }
+      .post-meta {
+        display: flex;
+        gap: 1em;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 1em;
+      }
+      .difficulty-badge {
+        padding: 0.25em 0.75em;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .difficulty-beginner {
+        background: #10b981;
+        color: white;
+      }
+      .difficulty-intermediate {
+        background: #f59e0b;
+        color: white;
+      }
+      .difficulty-advanced {
+        background: #ef4444;
+        color: white;
+      }
+      .reading-time {
+        color: rgb(var(--gray));
+        font-size: 0.9em;
+      }
+      .post-title {
+        font-size: 1.5em;
+        margin-bottom: 0.5em;
+        color: rgb(var(--black));
+      }
+      [data-theme="dark"] .post-title {
+        color: rgb(var(--gray-light));
+      }
+      .post-title a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .post-title a:hover {
+        color: rgb(var(--accent));
+      }
+      .post-excerpt {
+        color: rgb(var(--gray-dark));
+        line-height: 1.6;
+        margin-bottom: 1em;
+      }
+      .post-date {
+        color: rgb(var(--gray));
+        font-size: 0.9em;
+      }
+      .progress-indicator {
+        margin-top: 2em;
+        text-align: center;
+      }
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgb(var(--gray));
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1em 0;
+      }
+      .progress-fill {
+        height: 100%;
+        background: rgb(var(--accent));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+      .navigation {
+        margin-top: 3em;
+        text-align: center;
+      }
+      .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 1em;
+        flex-wrap: wrap;
+      }
+      .nav-link {
+        display: inline-block;
+        padding: 0.75em 1.5em;
+        background: rgb(var(--accent));
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+      .nav-link:hover {
+        background: rgb(var(--accent-dark));
+      }
+      .nav-link.secondary {
+        background: rgb(var(--gray));
+        color: rgb(var(--black));
+      }
+      [data-theme="dark"] .nav-link.secondary {
+        background: rgb(var(--gray-dark));
+        color: rgb(var(--gray-light));
+      }
+      .nav-link.secondary:hover {
+        background: rgb(var(--gray-dark));
+      }
+      [data-theme="dark"] .nav-link.secondary:hover {
+        background: rgb(var(--gray));
+      }
+      @media (max-width: 720px) {
+        main {
+          padding: 1em;
+        }
+        .series-title {
+          font-size: 2em;
+        }
+        .posts-grid {
+          gap: 1em;
+        }
+        .post-card {
+          padding: 1em;
+        }
+        .nav-links {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <div class="series-header">
+        <h1 class="series-title">{seriesName}</h1>
+        <div class="series-stats">
+          {totalParts} part{totalParts !== 1 ? 's' : ''} • Complete series
+        </div>
+      </div>
+
+      <div class="posts-grid">
+        {posts.map((post, index) => {
+          const contentForReadingTime = post.data.excerpt || post.data.description || '';
+          const { minutes } = calculateReadingTime(contentForReadingTime);
+          const progressPercent = ((index + 1) / totalParts) * 100;
+
+          return (
+            <article class={`post-card ${index === 0 ? 'current' : ''}`}>
+              <div class="post-header">
+                <div class="part-badge">Part {post.data.part || (index + 1)}</div>
+                <div class="progress-indicator">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style={`width: ${progressPercent}%`}></div>
+                  </div>
+                  <span class="progress-text">{index + 1} of {totalParts}</span>
+                </div>
+              </div>
+
+              <div class="post-meta">
+                {post.data.difficulty && (
+                  <span class={`difficulty-badge difficulty-${post.data.difficulty}`}>
+                    {post.data.difficulty.charAt(0).toUpperCase() + post.data.difficulty.slice(1)}
+                  </span>
+                )}
+                <span class="reading-time">{formatReadingTime(minutes)}</span>
+                <span class="post-date">
+                  <FormattedDate date={post.data.pubDate} />
+                </span>
+              </div>
+
+              <h2 class="post-title">
+                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+              </h2>
+
+              {post.data.excerpt && (
+                <p class="post-excerpt">{post.data.excerpt}</p>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      <div class="navigation">
+        <div class="nav-links">
+          <a href="/blog/" class="nav-link secondary">← Back to Blog</a>
+          <a href={`/blog/${posts[0]?.id}/`} class="nav-link">Start Reading →</a>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
